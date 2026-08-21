@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BidLens / 俱乐大玩家</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">BidLens <span>/ 俱乐大玩家</span></div>
+      <div class="top-actions">
+        <span id="catalog-status" class="catalog-status">加载藏品库…</span>
+        <span class="record-label">已录入 <strong id="top-record-count">0</strong> 条</span>
+        <button id="undo-button" class="top-button" type="button">撤销</button>
+        <button id="clear-button" class="top-button danger" type="button">清空本局</button>
+      </div>
+    </header>
+
+    <main class="workbench">
+      <nav class="family-rail" aria-label="信息大类">
+        <div id="family-tabs" class="family-tabs"></div>
+      </nav>
+
+      <section class="template-rail" aria-label="情报句式">
+        <div class="rail-heading">
+          <p id="template-heading">轮廓相关线索</p>
+          <span>选一句</span>
+        </div>
+        <div id="template-list" class="template-list"></div>
+      </section>
+
+      <section class="composer-panel" aria-label="当前正在录入">
+        <div class="composer-heading">
+          <div>
+            <p>当前正在录入</p>
+            <span id="template-help">从左侧选择信息类型和情报句式。</span>
+          </div>
+        </div>
+        <section id="form-card" class="form-card" aria-live="polite"></section>
+
+        <section class="recent-panel" aria-label="最近录入">
+          <div class="recent-heading">
+            <h2>最近录入</h2>
+            <span>本地保存</span>
+          </div>
+          <ol id="history-list" class="history-list"></ol>
+        </section>
+      </section>
+
+      <aside class="insight-panel" aria-label="本局推理摘要">
+        <div class="insight-heading">
+          <p>当前仓库</p>
+          <div><h2>已知信息</h2><strong id="record-count">0</strong></div>
+        </div>
+
+        <section class="summary-block">
+          <h3>已知条件</h3>
+          <ul id="facts-list" class="facts-list"></ul>
+        </section>
+
+        <section class="summary-block inference-block">
+          <h3>推断结果</h3>
+          <ul id="inference-list" class="facts-list"></ul>
+        </section>
+
+        <section class="summary-block conflict-block">
+          <h3>冲突检测</h3>
+          <p id="conflict-status" class="conflict-ok">当前无冲突</p>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="shortcut-bar">快捷键：↑↓ 选择线索　 Enter 录入　 Ctrl+Z 撤销</footer>
+    <script src="solver.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
