@@ -2,7 +2,7 @@ const STORAGE_KEY = "club-auction-helper-session-v1";
 
 const qualityOptions = ["白品", "绿品", "蓝品", "紫品", "橙品", "红品"];
 const categoryOptions = ["古董", "珠宝", "奢品", "字画", "化石", "茗酿"];
-const shapeOptions = ["1×1（1格）", "1×2（2格）", "2×1（2格）", "1×3（3格）", "3×1（3格）", "2×2（4格）", "2×3（6格）", "3×2（6格）", "2×4（8格）", "4×2（8格）", "3×3（9格）", "3×4（12格）", "4×3（12格）", "3×5（15格）", "4×4（16格）", "5×4（20格）"];
+let shapeOptions = ["1×1（1格）", "1×2（2格）", "2×1（2格）", "1×3（3格）", "3×1（3格）", "2×2（4格）", "2×3（6格）", "3×2（6格）", "2×4（8格）", "4×2（8格）", "3×3（9格）", "3×4（12格）", "4×3（12格）", "3×5（15格）", "4×4（16格）"];
 
 const families = [
   { id: "outline", label: "轮廓" },
@@ -13,35 +13,40 @@ const families = [
   { id: "full", label: "完整信息" },
 ];
 
+// 各类统一按“全体/汇总 → 指定条件 → 极值对象 → 随机样本”排列。
 const templates = [
-  { id: "outline-largest", family: "outline", label: "格子占用最多的藏品的轮廓", result: "shape", scope: "最大占格藏品" },
+  { id: "outline-quality-all", family: "outline", label: "某个指定品质所有藏品的轮廓", params: ["quality"], result: "bulk-shape", scope: "指定品质全部藏品", directFact: true },
   { id: "outline-category-all", family: "outline", label: "某个指定品类的所有藏品的轮廓", params: ["category"], result: "bulk-shape", scope: "指定品类全部藏品" },
+  { id: "outline-quality-one", family: "outline", label: "某个指定品质藏品的轮廓", params: ["quality"], result: "shape", scope: "指定品质的某件藏品", directFact: true },
+  { id: "outline-largest", family: "outline", label: "格子占用最多的藏品的轮廓", result: "shape", scope: "最大占格藏品" },
   { id: "outline-highest-random", family: "outline", label: "随机 1 个最高品质藏品的轮廓", result: "shape", scope: "随机最高品质藏品" },
   { id: "outline-random", family: "outline", label: "随机 X 件藏品的轮廓", params: ["count"], result: "multi-shape", scope: "随机藏品" },
 
-  { id: "quality-random", family: "quality", label: "随机 X 件藏品的品质", params: ["count"], result: "multi-quality", scope: "随机藏品" },
   { id: "quality-all", family: "quality", label: "所有藏品的品质", result: "bulk-quality", scope: "全部藏品" },
   { id: "quality-largest", family: "quality", label: "格子占用最多的藏品的品质", result: "quality", scope: "最大占格藏品" },
+  { id: "quality-random", family: "quality", label: "随机 X 件藏品的品质", params: ["count"], result: "multi-quality", scope: "随机藏品" },
 
-  { id: "value-quality-total", family: "value", label: "某个指定品质的藏品的总价值", params: ["quality"], result: "value", scope: "指定品质全部藏品", directFact: true },
   { id: "value-all-total", family: "value", label: "所有藏品的总价值", result: "value", scope: "全部藏品", directFact: true },
-  { id: "value-highest-random", family: "value", label: "随机 1 个最高品质藏品的价值", result: "value", scope: "随机最高品质藏品" },
+  { id: "value-quality-total", family: "value", label: "某个指定品质的藏品的总价值", params: ["quality"], result: "value", scope: "指定品质全部藏品", directFact: true },
   { id: "value-slots-average", family: "value", label: "占位 X 格的藏品的平均价值", params: ["slots"], result: "value", scope: "指定格数藏品", directFact: true },
+  { id: "value-quality-one", family: "value", label: "某个指定品质藏品的价值", params: ["quality"], result: "value", scope: "指定品质的某件藏品", directFact: true },
+  { id: "value-highest-random", family: "value", label: "随机 1 个最高品质藏品的价值", result: "value", scope: "随机最高品质藏品" },
   { id: "value-largest-random", family: "value", label: "随机 1 个占用格子最多的藏品的价值", result: "value", scope: "随机最大占格藏品" },
 
   { id: "slots-all-total", family: "slots", label: "所有藏品占用的总格数", result: "number", scope: "全部藏品", directFact: true },
+  { id: "slots-all-average", family: "slots", label: "所有藏品的平均格数", result: "number", scope: "全部藏品", directFact: true },
   { id: "slots-quality-total", family: "slots", label: "某个指定品质的藏品占用的总格数", params: ["quality"], result: "number", scope: "指定品质全部藏品", directFact: true },
   { id: "slots-quality-average", family: "slots", label: "某个指定品质的藏品占用的平均格数", params: ["quality"], result: "number", scope: "指定品质全部藏品", directFact: true },
+  { id: "slots-quality-one", family: "slots", label: "某个指定品质藏品的格子数", params: ["quality"], result: "number", scope: "指定品质的某件藏品", directFact: true },
   { id: "slots-highest-random", family: "slots", label: "随机 1 个最高品质的藏品的格子数", result: "number", scope: "随机最高品质藏品" },
-  { id: "slots-all-average", family: "slots", label: "所有藏品的平均格数", result: "number", scope: "全部藏品", directFact: true },
 
-  { id: "count-quality-total", family: "count", label: "某个品质的藏品总数量", params: ["quality"], result: "number", scope: "指定品质全部藏品", directFact: true },
   { id: "count-all-total", family: "count", label: "所有藏品的总数量", result: "number", scope: "全部藏品", directFact: true },
+  { id: "count-quality-total", family: "count", label: "某个品质的藏品总数量", params: ["quality"], result: "number", scope: "指定品质全部藏品", directFact: true },
 
-  { id: "full-random", family: "full", label: "随机 X 个藏品的完整信息", params: ["count"], result: "multi-full", scope: "随机藏品" },
   { id: "full-all", family: "full", label: "所有藏品的完整信息", result: "bulk-full", scope: "全部藏品" },
   { id: "full-highest-random", family: "full", label: "随机 1 个最高品质藏品的完整信息", result: "full", scope: "随机最高品质藏品" },
   { id: "full-largest-random", family: "full", label: "随机 1 个占用格子数最多藏品的完整信息", result: "full", scope: "随机最大占格藏品" },
+  { id: "full-random", family: "full", label: "随机 X 个藏品的完整信息", params: ["count"], result: "multi-full", scope: "随机藏品" },
 ];
 
 let selectedFamily = "outline";
@@ -84,7 +89,8 @@ function parseCsv(text) {
   }
   if (cell || row.length) { row.push(cell); rows.push(row); }
   const [headers, ...body] = rows;
-  const hasHeader = headers[0]?.replace(/^\uFEFF/, "") === "编号";
+  const firstHeader = headers[0]?.replace(/^\uFEFF/, "");
+  const hasHeader = ["编号", "藏品ID", "藏品 ID"].includes(firstHeader);
   const columnNames = ["编号", "名称", "轮廓", "价值", "品质", "品类", "描述", "图标"];
   const dataRows = hasHeader ? body : rows;
   const fieldNames = hasHeader ? headers.map((header) => header.replace(/^\uFEFF/, "")) : columnNames;
@@ -100,7 +106,13 @@ async function loadCatalog() {
     const response = await fetch("data/藏品图鉴汇总.csv");
     if (!response.ok) throw new Error("CSV not found");
     catalog = parseCsv(await response.text());
+    shapeOptions = [...new Set(catalog.map((item) => item.轮廓).filter(Boolean))].sort((left, right) => {
+      const leftSlots = window.AuctionInferenceSolver?.slotCount(left) ?? 0;
+      const rightSlots = window.AuctionInferenceSolver?.slotCount(right) ?? 0;
+      return leftSlots - rightSlots || left.localeCompare(right, "zh-CN");
+    });
     catalogStatus.textContent = `已加载 ${catalog.length} 件藏品`;
+    renderForm();
     renderSummary();
   } catch {
     catalogStatus.textContent = "CSV 加载失败（检查本地服务）";
@@ -109,11 +121,16 @@ async function loadCatalog() {
 
 function renderFamilies() {
   familyTabs.innerHTML = families.map((family) => `<button class="family-tab ${family.id === selectedFamily ? "active" : ""}" data-family="${family.id}" type="button">${family.label}</button>`).join("");
-  familyTabs.querySelectorAll("button").forEach((button) => button.addEventListener("click", () => {
+  familyTabs.querySelectorAll("button").forEach((button) => {
+    const activate = () => {
+      if (selectedFamily === button.dataset.family) return;
     selectedFamily = button.dataset.family;
     selectedTemplateId = null;
     renderFamilies(); renderTemplates(); renderForm();
-  }));
+    };
+    button.addEventListener("mouseenter", activate);
+    button.addEventListener("click", activate);
+  });
 }
 
 function renderTemplates() {
@@ -121,10 +138,15 @@ function renderTemplates() {
   const family = families.find((item) => item.id === selectedFamily);
   templateHeading.textContent = `${family.label}相关线索`;
   templateList.innerHTML = familyTemplates.map((template) => `<button type="button" class="template-button ${template.id === selectedTemplateId ? "active" : ""}" data-template="${template.id}">${template.label}</button>`).join("");
-  templateList.querySelectorAll("button").forEach((button) => button.addEventListener("click", () => {
-    selectedTemplateId = button.dataset.template;
-    renderTemplates(); renderForm();
-  }));
+  templateList.querySelectorAll("button").forEach((button) => {
+    const activate = () => {
+      if (selectedTemplateId === button.dataset.template) return;
+      selectedTemplateId = button.dataset.template;
+      renderTemplates(); renderForm();
+    };
+    button.addEventListener("mouseenter", activate);
+    button.addEventListener("click", activate);
+  });
 }
 
 function optionButtons(name, values) {
@@ -235,8 +257,8 @@ function renderSummary() {
   const direct = session.records.filter((record) => templates.find((template) => template.id === record.templateId)?.directFact);
   factsList.innerHTML = direct.length
     ? direct.slice(0, 7).map((record) => `<li>${formatRecord(record)}</li>`).join("")
-    : "<li>录入总数、总价值或指定品质统计后，会在这里显示。</li>";
-  const result = window.ConservativeSolver?.solve(catalog, session.records) ?? { lines: ["求解器加载失败。"], conflicts: [] };
+    : "<li>录入指定品质的价值、数量、格数或轮廓后，会在这里显示。</li>";
+  const result = window.AuctionInferenceSolver?.solve(catalog, session.records) ?? { lines: ["求解器加载失败。"], conflicts: [] };
   inferenceList.innerHTML = result.lines.map((line) => `<li>${line}</li>`).join("");
   if (result.conflicts.length) {
     conflictStatus.className = "conflict-error";
